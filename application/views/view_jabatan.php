@@ -32,16 +32,29 @@
 		<![endif]-->
 
 	<!-- inline styles related to this page -->
+	<script src="https://code.jquery.com/jquery-2.2.4.min.js"></script>
+	<script src="http://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
 
 	<!-- ace settings handler -->
 	<script src="<?php echo base_url() . 'assets/js/ace-extra.min.js' ?>"></script>
-
+	
 	<!-- HTML5shiv and Respond.js for IE8 to support HTML5 elements and media queries -->
 
 	<!--[if lte IE 8]>
 		<script src="assets/js/html5shiv.min.js"></script>
 		<script src="assets/js/respond.min.js"></script>
 		<![endif]-->
+
+		<style type="text/css">
+			#page_list td
+			{
+				padding:16px;
+				background-color:#f9f9f9;
+				border:1px dotted #ccc;
+				cursor:move;
+				margin-top:12px;
+			}
+		</style>
 </head>
 
 <body class="no-skin">
@@ -166,6 +179,13 @@
 					<div class="row">
 						<div class="col-xs-12">
 							<!-- PAGE CONTENT BEGINS -->
+							<?php
+								// foreach ($urutan as $baris) {
+								// 	$a =$baris->urutan;
+								// 	$b = $a + 1;
+								// 	echo $b;
+								// }
+							?>
 							<div class="pull-right"><a href="#" class="btn btn-sm btn-success" id="item_add"><span class="fa fa-plus"></span> Tambah Jabatan</a></div>
 							<div class="row">
 								<div class="col-xs-12">
@@ -328,18 +348,8 @@
 
 	<!-- basic scripts -->
 
-	<!--[if !IE]> -->
-	<script src="<?php echo base_url() . 'assets/js/jquery-2.1.4.min.js' ?>"></script>
-
-	<!-- <![endif]-->
-
-	<!--[if IE]>
-            <script src="assets/js/jquery-1.11.3.min.js"></script>
-        <![endif]-->
-	<script type="text/javascript">
-		if ('ontouchstart' in document.documentElement) document.write("<script src='../../assets/js/jquery.mobile.custom.min.js'>" + "<" + "/script>");
-	</script>
-	<script src="<?php echo base_url() . 'assets/js/bootstrap.min.js' ?>"></script>
+	
+	
 
 	<!-- page specific plugin scripts -->
 
@@ -357,13 +367,46 @@
 	<!-- ace scripts -->
 	<script src="<?php echo base_url() . 'assets/js/ace-elements.min.js' ?>"></script>
 	<script src="<?php echo base_url() . 'assets/js/ace.min.js' ?>"></script>
-
-	<script type="text/javascript" src="<?php echo base_url() . 'assets/js/jquery.js' ?>"></script>
+	
+	
 	<script type="text/javascript" src="<?php echo base_url() . 'assets/js/bootstrap.min.js' ?>"></script>
 	<script type="text/javascript" src="<?php echo base_url() . 'assets/js/jquery.dataTables.min.js' ?>"></script>
 	<script type="text/javascript">
 		$(document).ready(function() {
 			tampil_data_jabatan(); //pemanggilan fungsi tampil jabatan.
+
+			//Sorting
+			$('table tbody').sortable({
+				update: function(event, ui) {
+					$(this).children().each(function(index) {
+						if ($(this).attr('data-position') != (index + 1)) {
+							$(this).attr('data-position', (index + 1)).addClass('updated');
+						}
+					});
+					saveNewPositions();
+				}
+			});
+
+			function saveNewPositions() {
+				var positions = new Array();
+				$('.updated').each(function() {
+					positions.push([$(this).attr('data-index'), $(this).attr('data-position')]);
+					$(this).removeClass('updated');
+				});
+
+				$.ajax({
+					url: "<?php echo base_url('index.php/jabatan/sort_jabatan') ?>",
+					method: "POST",
+					dataType: "text",
+					data: {
+						update: 1,
+						positions: positions
+					},
+					success: function(data) {
+						// alert(result);
+					}
+				});
+			}
 
 			$('#mydata').dataTable();
 
@@ -378,7 +421,7 @@
 						var html = '';
 						var i;
 						for (i = 0; i < data.length; i++) {
-							html += '<tr>' +
+							html += '<tr data-index="' + data[i].id_jabatan + '" data-position="' + data[i].urutan + '" id="page_list">' +
 								'<td>' + data[i].id_jabatan + '</td>' +
 								'<td>' + data[i].nama_jabatan + '</td>' +
 								'<td>' +
@@ -489,6 +532,9 @@
 				});
 				return false;
 			});
+
+			
+
 
 		});
 	</script>

@@ -8,6 +8,7 @@ class jabatan extends CI_Controller
 	}
 	function index()
 	{
+		// $data['urutan'] = $this->m_jabatan->get_urutan();
 		$this->load->view('view_jabatan');
 	}
 
@@ -43,6 +44,13 @@ class jabatan extends CI_Controller
 	{
 		$id_jabatan = $this->input->post('id_jabatan');
 		$data = $this->m_jabatan->hapus_jabatan($id_jabatan);
+		echo json_encode($data);
+	}
+
+	function sort_jabatan()
+	{
+		$positions = $this->input->post('positions');
+		$data = $this->m_jabatan->sort_jabatan($positions);
 		echo json_encode($data);
 	}
 }
